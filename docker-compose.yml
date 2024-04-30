@@ -2,7 +2,7 @@ version: '3'
 
 services:
   torrent-indexer:
-    image: Thanegche/torrent-indexerteste:latest
+    image: thanegche/torrent-indexerteste:latest
     container_name: torrent-indexer
     restart: unless-stopped
     ports:
