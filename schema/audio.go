@@ -74,9 +74,9 @@ func GetAudioFromString(s string) *Audio {
 func (a Audio) toISO639_2() string {
 	switch a {
 	case AudioPortuguese:
-		return "pt-br"
+		return "brazilian"
 	case AudioPortuguese2:
-		return "pt-br"
+		return "brazilian"
 	case AudioEnglish:
 		return "eng"
 	case AudioEnglish2:
