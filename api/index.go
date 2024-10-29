@@ -7,12 +7,14 @@ import (
 
 	"github.com/felipemarinho97/torrent-indexer/cache"
 	"github.com/felipemarinho97/torrent-indexer/monitoring"
+	"github.com/felipemarinho97/torrent-indexer/requester"
 	"github.com/felipemarinho97/torrent-indexer/schema"
 )
 
 type Indexer struct {
-	redis   *cache.Redis
-	metrics *monitoring.Metrics
+	redis     *cache.Redis
+	metrics   *monitoring.Metrics
+	requester *requester.Requster
 }
 
 type IndexerMeta struct {
@@ -42,10 +44,11 @@ type IndexedTorrent struct {
 	Similarity    float32        `json:"similarity"`
 }
 
-func NewIndexers(redis *cache.Redis, metrics *monitoring.Metrics) *Indexer {
+func NewIndexers(redis *cache.Redis, metrics *monitoring.Metrics, req *requester.Requster) *Indexer {
 	return &Indexer{
-		redis:   redis,
-		metrics: metrics,
+		redis:     redis,
+		metrics:   metrics,
+		requester: req,
 	}
 }
 
@@ -56,20 +59,35 @@ func HandlerIndex(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"time": currentTime,
 		"endpoints": map[string]interface{}{
-			"/indexers/comando_torrents": map[string]interface{}{
-				"method":      "GET",
-				"description": "Indexer for comando torrents",
-				"query_params": map[string]string{
-					"q":              "search query",
-					"filter_results": "if results with similarity equals to zero should be filtered (true/false)",
+			"/indexers/comando_torrents": []map[string]interface{}{
+				{
+					"method":      "GET",
+					"description": "Indexer for comando torrents",
+					"query_params": map[string]string{
+						"q":              "search query",
+						"filter_results": "if results with similarity equals to zero should be filtered (true/false)",
+					},
 				},
 			},
-			"/indexers/bludv": map[string]interface{}{
-				"method":      "GET",
-				"description": "Indexer for bludv",
-				"query_params": map[string]string{
-					"q":              "search query",
-					"filter_results": "if results with similarity equals to zero should be filtered (true/false)",
+			"/indexers/bludv": []map[string]interface{}{
+				{
+					"method":      "GET",
+					"description": "Indexer for bludv",
+					"query_params": map[string]string{
+						"q":              "search query",
+						"filter_results": "if results with similarity equals to zero should be filtered (true/false)",
+					}},
+			},
+			"/indexers/manual": []map[string]interface{}{
+				{
+					"method":      "POST",
+					"description": "Add a manual torrent entry to the indexer for 12 hours",
+					"body": map[string]interface{}{
+						"magnetLink": "magnet link",
+					}},
+				{
+					"method":      "GET",
+					"description": "Get all manual torrents",
 				},
 			},
 		},
